@@ -19,7 +19,6 @@ jobs:
       - name: UnHide file before norm
         run : |
           mv .mouliVD mouliVD
-          mv .weblink weblink
       - name : make flags
         run: |
           curl "https://img.shields.io/badge/mouli-success-light--green?style=for-the-badge&logo=Cachet" -o good-flag.svg
