@@ -12,7 +12,6 @@ jobs:
       - name: Hide file before norm
         run : |
           mv mouliVD .mouliVD
-          mv weblink .weblink
       - name: Abricot Coding Style
         uses: Just1truc/Abricot-Norminette@latest
         id: coding_style
