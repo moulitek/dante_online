@@ -1,0 +1,192 @@
+#!/bin/sh
+make re > /dev/null
+ret=0
+
+test_expect_success () {
+        DATE='/bin/date'
+        BEFORE=$($DATE +'%s')
+        echo "    on size ${1} ${2}"
+        ./generator/generator ${1} ${2} > res
+        ret1=$?
+        AFTER=$($DATE +'%s')
+        ELAPSED=$(($AFTER - $BEFORE))
+
+        if [ $ret1 != 0 ]
+        then
+            echo "**KO return value**"
+            ret=84
+        fi
+        if [ $ret1 == 0 ]
+        then
+            echo "    success with $ELAPSED s"
+        fi
+        rm res
+        echo "_____________________________________"
+}
+
+test_expect_error () {
+        echo "    on test ${1} ${2} ${3} ${4}"
+        ./generator/generator ${1} ${2} ${3} ${4} > res
+        ret1=$?
+        if [ $ret1 == 84 ]
+        then
+            echo "    handling OK"
+        else
+            echo "**handling KO : should have error 84**"
+            ret=84
+        fi
+        echo "_____________________________________"
+}
+
+test_expect_error_res () {
+        echo "    on test ${1} ${2}"
+        ./solver/solver ${1} ${2}
+        ret1=$(bash -c "echo $?")
+        if [ $ret1 == 84 ]
+        then
+            echo "    handling OK"
+        else
+            echo "**handling KO : should have error 84**"
+            ret=84
+        fi
+        echo "_____________________________________"
+}
+
+tput setaf 201 bold
+echo
+echo "====================================="
+echo "GO for GENERATION TEST"
+echo "====================================="
+echo
+tput init
+test_expect_success 2 2
+test_expect_success 1 40
+test_expect_success 40 1
+test_expect_success 1 1
+test_expect_success 10 10
+test_expect_success 100 100
+test_expect_success 1000 1000
+test_expect_success 10000 10000
+test_expect_success 20000 20000
+test_expect_success 30000 30000
+test_expect_success 40000 40000
+test_expect_success 50000 50000
+
+tput setaf 201 bold
+echo
+echo "====================================="
+echo "GO for GENERATION ERROR HANDLING TEST"
+echo "====================================="
+echo
+tput init
+
+test_expect_error 0 2
+test_expect_error 2 0
+test_expect_error 2 -0
+test_expect_error -2 0
+test_expect_error 2 -2
+test_expect_error "a" 2
+test_expect_error 2 "a"
+test_expect_error "z" 2
+test_expect_error 2 "z"
+test_expect_error "2Ab" 0
+test_expect_error "A" 2
+test_expect_error 2
+test_expect_error
+test_expect_error 2 2 "perfec"
+test_expect_error 2 2 "poupiboup"
+test_expect_error 2 2 "perfect" "notperfect"
+
+
+tput setaf 201 bold
+echo
+echo "====================================="
+echo "GO for RESOLUTION ERROR HANDLING TEST"
+echo "====================================="
+echo
+tput init
+search_dir="mouliVD/map/"
+for entry in `ls $search_dir`; do
+    mine="${search_dir}${entry}"
+    test_expect_error_res $mine
+done
+test_expect_error_res "fake_file"
+test_expect_error_res $mine "too many file"
+
+
+tput setaf 201 bold
+echo
+echo "====================================="
+echo "GO for LOOPING TEST"
+echo "====================================="
+echo
+tput init
+
+echo "The loop generate map with your generator and solve it with your solver"
+i=0
+while [ $i -lt 101 ]
+do
+    w=`echo $(($RANDOM%180+1))`
+    h=`echo $(($RANDOM%50+1))`
+    echo "[$i] loop on $w $h"
+    echo ;
+    ./generator/generator $w $h > output.val
+    ret1=$(bash -c "echo $?")
+    ./solver/solver output.val > res.val
+    ret2=$(bash -c "echo $?")
+    if [ $ret2 != 0 ] || [ $ret1 != 0 ]
+    then
+        echo "__________________"
+        echo "on $w $h"
+        echo ;
+        cat output.val
+        echo ;
+        echo "    KO"
+        echo "__________________"
+        ret=84
+    fi
+	i=`expr $i + 1`
+	rm output.val
+    rm res.val
+done
+
+
+tput setaf 201 bold
+echo
+echo "====================================="
+echo "GO for LOOPING TEST on 1->10 value"
+echo "====================================="
+echo
+tput init
+
+echo "The loop generate map with your generator and solve it with your solver"
+i=0
+while [ $i -lt 101 ]
+do
+    w=`echo $(($RANDOM%10+1))`
+    h=`echo $(($RANDOM%10+1))`
+    echo "[$i] loop on $w $h"
+    echo ;
+    ./generator/generator $w $h > output.val
+    ret1=$(bash -c "echo $?")
+    ./solver/solver output.val > res.val
+    ret2=$(bash -c "echo $?")
+    if [ $ret2 != 0 ] || [ $ret1 != 0 ]
+    then
+        echo "__________________"
+        echo "on $w $h"
+        echo ;
+        cat output.val
+        echo ;
+        echo "    KO"
+        echo "__________________"
+        ret=84
+    fi
+	i=`expr $i + 1`
+	rm output.val
+    rm res.val
+done
+
+
+make fclean > /dev/null
+exit $ret

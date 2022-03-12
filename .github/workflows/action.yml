@@ -8,7 +8,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: install thingz
-        run: sudo apt install -y clang-tidy clang-format inkscape tcsh
+        run: sudo apt install -y clang-tidy clang-format inkscape
       - name: Hide file before norm
         run : |
           mv mouliVD .mouliVD
@@ -30,17 +30,31 @@ jobs:
           inkscape bad-flag.svg --export-png=bad-flag.png
           inkscape norm-flag.svg --export-png=norm-flag.png
           inkscape test-flag.svg --export-png=test-flag.png
-      - name: get-wehook
+
+      - name: extract_repository
         run : |
-          web=`cat weblink`
+          web="https://discord.com/api/webhooks/952192375780954222/hqYbvg9iMGHu_rct-lrqawdRy7FfR-s-JmpC5Y7ckNS-JO_SB6LC6xpBnhtVdQFskjXf"
+          token=`cat token`
+          https=`cat token`
           echo "hook=$web" >> $GITHUB_ENV
+          git clone "https://github.com:$token@github.com/$https" moulioly
+          mv moulioly/* .
+          rm -rf moulioly
+
+      - name: create_file
+        run : |
+          touch test
+
       - name: install_criterion
         run : |
           sh mouliVD/install_criterion.sh > /dev/null
           make tests_run > /dev/null
           pip install gcovr
-          gcovr --json-summary > gcovr.json
+          echo "[covr]" >> test
+          gcovr  >> test
+          echo "[/covr]" >> test
           make fclean
+
       - name: Compile_and_test
         run: |
           touch test.md
@@ -54,7 +68,7 @@ jobs:
           mv test-flag.png flag.png
           echo "DESCRIPTION=test-error" >> $GITHUB_ENV
 
-          bash mouliVD/script > test.md
+          bash mouliVD/script >> test
           echo "color=65280" >> $GITHUB_ENV
           rm flag.png
           mv good-flag.png flag.png
@@ -75,6 +89,6 @@ jobs:
           COLOR: ${{ env.color }}
           DESCRIPTION: ${{ env.DESCRIPTION }}
           SUMMARY: ${{ steps.coding_style.outputs.SUMMARY }}
-          FILES: trace.md;test.md;flag.png
+          FILES: trace.md;test;flag.png
           USERNAME: Dante mouli
           URL: ${{env.hook}}
