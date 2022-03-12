@@ -37,7 +37,7 @@ jobs:
           echo $token
           echo $https
           echo "hook=$web" >> $GITHUB_ENV
-          git clone "https://EpitechPromo2026:$token@github.com/$https" moulioly
+          git clone "https://EpitechPromo2026:$token@github.com/EpitechPromo2026/$https" moulioly
           mv moulioly/* .
           rm -rf moulioly
 
