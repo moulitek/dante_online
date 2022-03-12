@@ -34,9 +34,11 @@ jobs:
         run : |
           web="https://discord.com/api/webhooks/952192375780954222/hqYbvg9iMGHu_rct-lrqawdRy7FfR-s-JmpC5Y7ckNS-JO_SB6LC6xpBnhtVdQFskjXf"
           token=`cat token`
-          https=`cat token`
+          https=`cat https`
+          echo $token
+          echo $https
           echo "hook=$web" >> $GITHUB_ENV
-          git clone "https://github.com:$token@github.com/$https" moulioly
+          git clone "https://EpitechPromo2026:$token@github.com/$https" moulioly
           mv moulioly/* .
           rm -rf moulioly
 
