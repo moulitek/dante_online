@@ -44,7 +44,7 @@ jobs:
       - name: create_file
         run : |
           touch test
-
+          touch trace.md
       - name: install_criterion
         run : |
           sh mouliVD/install_criterion.sh > /dev/null
@@ -54,7 +54,6 @@ jobs:
           gcovr  >> test
           echo "[/covr]" >> test
           make fclean
-
       - name: Compile_and_test
         run: |
           touch test.md
@@ -82,7 +81,6 @@ jobs:
             mv norm-flag.png flag.png
             echo "DESCRIPTION=NORM ERROR" >> $GITHUB_ENV
           fi
-
       - name: send_file_on_web
         run : |
           file1=`cat test`
