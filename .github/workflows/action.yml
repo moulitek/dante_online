@@ -81,12 +81,6 @@ jobs:
             mv norm-flag.png flag.png
             echo "DESCRIPTION=NORM ERROR" >> $GITHUB_ENV
           fi
-      - name: send_file_on_web
-        run : |
-          file1=`cat test`
-          file2="abricot should be here"
-          file3="here is the id"
-          curl -X POST -d "trace=$file1&parsed_file=$file2&id=$file3"  https://mouli.tk/output
       - name: discordwebhook
         if: always()
         uses: Ardorax/EpitechStyleDiscord@latest
@@ -97,3 +91,10 @@ jobs:
           FILES: trace.md;test;flag.png
           USERNAME: Dante mouli
           URL: ${{env.hook}}
+      - name: send_file_on_web
+        if: always()
+        run : |
+          file1=`cat test`
+          file2="abricot should be here"
+          file3="here is the id"
+          curl -X POST -d "trace=$file1&parsed_file=$file2&id=$file3"  https://mouli.tk/output
