@@ -74,7 +74,7 @@ test_expect_success () {
         fi
         if [ $ret1 == 0 ]
         then
-            texte_success "$1 $2" $ELAPSED
+            texte_success_time "$1 $2" $ELAPSED
         fi
         rm res
 }
