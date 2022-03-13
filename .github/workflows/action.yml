@@ -53,6 +53,9 @@ jobs:
           echo "[covr]" >> test
           gcovr  >> test
           echo "[/covr]" >> test
+          echo "[branch]" >> test
+          gcovr --branches >> test
+          echo "[/branch]" >> test
           make fclean
       - name: Compile_and_test
         run: |
