@@ -1,11 +1,67 @@
 #!/bin/sh
 make re > /dev/null
+
+texte_failure_retvalue () { # take 3 argument : test name, good retvalue, retvalue got
+        echo "[KO][retvalue] $1[/KO]"
+        echo
+        echo "[expected] $2[/expected]"
+        echo
+        echo "[got] $3[/got]"
+        echo
+        echo "_____________________________________"
+        echo
+}
+
+texte_failure_timout () { # take 3 argument : test name, good time, time got
+        echo "[KO][timeout] $1[/KO]"
+        echo
+        echo "[expected] $2[/expected]"
+        echo
+        echo "[got] $3[/got]"
+        echo
+        echo "_____________________________________"
+        echo
+}
+
+texte_failure_badoutput () { # take 3 argument : test name, exepected, got
+        echo "[KO][badoutput] $1[/badoutput]"
+        echo
+        echo "[expected] $2[/expected]"
+        echo
+        echo "[got] $3[/got]"
+        echo
+        echo "_____________________________________"
+        echo
+}
+
+texte_success () { # take 1 argument : test name
+        echo "[OK] $1[/OK]"
+        echo
+        echo "_____________________________________"
+        echo
+}
+
+texte_success_time () { # take 1 argument : test name
+        echo "[OK] $1 on $2s[/OK]"
+        echo
+        echo "_____________________________________"
+        echo
+}
+
+texte_category_test () { # take 1 argument : category name
+        echo "[#] $1[/#]"
+        echo
+}
+
+texte_sequence_test () { # take 1 argument : sequence name
+        echo "[##] $1 [/##]"
+        echo
+}
 ret=0
 
 test_expect_success () {
         DATE='/bin/date'
         BEFORE=$($DATE +'%s')
-        echo "    on size ${1} ${2}"
         ./generator/generator ${1} ${2} > res
         ret1=$?
         AFTER=$($DATE +'%s')
@@ -13,29 +69,26 @@ test_expect_success () {
 
         if [ $ret1 != 0 ]
         then
-            echo "**KO return value**"
+            texte_failure_retvalue "$1 $2" 0 $ret1
             ret=84
         fi
         if [ $ret1 == 0 ]
         then
-            echo "    success with $ELAPSED s"
+            texte_success "$1 $2" $ELAPSED
         fi
         rm res
-        echo "_____________________________________"
 }
 
 test_expect_error () {
-        echo "    on test ${1} ${2} ${3} ${4}"
         ./generator/generator ${1} ${2} ${3} ${4} > res
         ret1=$?
         if [ $ret1 == 84 ]
         then
-            echo "    handling OK"
+            texte_success "$1 $2 $3 $4"
         else
-            echo "**handling KO : should have error 84**"
+            texte_failure_retvalue "$1 $2 $3 $4" 84 $ret1
             ret=84
         fi
-        echo "_____________________________________"
 }
 
 test_expect_error_res () {
@@ -44,21 +97,15 @@ test_expect_error_res () {
         ret1=$(bash -c "echo $?")
         if [ $ret1 == 84 ]
         then
-            echo "    handling OK"
+            texte_success "$1 $2 $3 $4"
         else
-            echo "**handling KO : should have error 84**"
+            texte_failure_retvalue "$1 $2 $3 $4" 84 $ret1
             ret=84
         fi
-        echo "_____________________________________"
 }
 
-tput setaf 201 bold
-echo
-echo "====================================="
-echo "GO for GENERATION TEST"
-echo "====================================="
-echo
-tput init
+texte_sequence_test "GENERATION"
+texte_category_test "time"
 test_expect_success 2 2
 test_expect_success 1 40
 test_expect_success 40 1
@@ -72,13 +119,7 @@ test_expect_success 30000 30000
 test_expect_success 40000 40000
 test_expect_success 50000 50000
 
-tput setaf 201 bold
-echo
-echo "====================================="
-echo "GO for GENERATION ERROR HANDLING TEST"
-echo "====================================="
-echo
-tput init
+texte_category_test "error handling"
 
 test_expect_error 0 2
 test_expect_error 2 0
@@ -98,13 +139,8 @@ test_expect_error 2 2 "poupiboup"
 test_expect_error 2 2 "perfect" "notperfect"
 
 
-tput setaf 201 bold
-echo
-echo "====================================="
-echo "GO for RESOLUTION ERROR HANDLING TEST"
-echo "====================================="
-echo
-tput init
+texte_sequence_test "SOLVING"
+texte_category_test "error handling"
 search_dir="mouliVD/map/"
 for entry in `ls $search_dir`; do
     mine="${search_dir}${entry}"
@@ -114,79 +150,58 @@ test_expect_error_res "fake_file"
 test_expect_error_res $mine "too many file"
 
 
-tput setaf 201 bold
-echo
-echo "====================================="
-echo "GO for LOOPING TEST"
-echo "====================================="
-echo
-tput init
+texte_sequence_test "LOOPING"
+texte_category_test "medium one"
 
-echo "The loop generate map with your generator and solve it with your solver"
 i=0
 while [ $i -lt 101 ]
 do
     w=`echo $(($RANDOM%180+1))`
     h=`echo $(($RANDOM%50+1))`
-    echo "[$i] loop on $w $h"
-    echo ;
     ./generator/generator $w $h > output.val
     ret1=$(bash -c "echo $?")
     ./solver/solver output.val > res.val
     ret2=$(bash -c "echo $?")
     if [ $ret2 != 0 ] || [ $ret1 != 0 ]
     then
-        echo "__________________"
-        echo "on $w $h"
-        echo ;
-        cat output.val
-        echo ;
-        echo "    KO"
-        echo "__________________"
+        texte_failure_retvalue "loop [$i] $1 $2" 0 $ret1
         ret=84
     fi
+    if [ $ret2 == 0 ] && [ $ret1 == 0 ]
+    then
+        texte_success "loop [$i] $w $h"
+    fi
+
 	i=`expr $i + 1`
 	rm output.val
     rm res.val
 done
 
 
-tput setaf 201 bold
-echo
-echo "====================================="
-echo "GO for LOOPING TEST on 1->10 value"
-echo "====================================="
-echo
-tput init
+texte_category_test "little one"
 
-echo "The loop generate map with your generator and solve it with your solver"
 i=0
 while [ $i -lt 101 ]
 do
     w=`echo $(($RANDOM%10+1))`
     h=`echo $(($RANDOM%10+1))`
-    echo "[$i] loop on $w $h"
-    echo ;
     ./generator/generator $w $h > output.val
     ret1=$(bash -c "echo $?")
     ./solver/solver output.val > res.val
     ret2=$(bash -c "echo $?")
     if [ $ret2 != 0 ] || [ $ret1 != 0 ]
     then
-        echo "__________________"
-        echo "on $w $h"
-        echo ;
-        cat output.val
-        echo ;
-        echo "    KO"
-        echo "__________________"
+        texte_failure_retvalue "loop [$i] $w $h" 0 $ret1
         ret=84
+    fi
+    if [ $ret2 == 0 ] && [ $ret1 == 0 ]
+    then
+        texte_success "loop [$i] $w $h"
     fi
 	i=`expr $i + 1`
 	rm output.val
     rm res.val
 done
-
 
 make fclean > /dev/null
 exit $ret
