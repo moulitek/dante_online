@@ -8,6 +8,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: install thingz
+        if: always()
         run: sudo apt install -y clang-tidy clang-format inkscape
       - name: Hide file before norm
         run : |
@@ -16,9 +17,11 @@ jobs:
         uses: Just1truc/Abricot-Norminette@latest
         id: coding_style
       - name: UnHide file before norm
+        if: always()
         run : |
           mv .mouliVD mouliVD
       - name : make flags
+        if: always()
         run: |
           curl "https://img.shields.io/badge/mouli-success-light--green?style=for-the-badge&logo=Cachet" -o good-flag.svg
           curl "https://img.shields.io/badge/mouli-build%20error-ff0000?style=for-the-badge&logo=ZeroMQ" -o bad-flag.svg
@@ -30,6 +33,7 @@ jobs:
           inkscape test-flag.svg --export-png=test-flag.png
 
       - name: extract_repository
+        if: always()
         run : |
           web="https://discord.com/api/webhooks/952192375780954222/hqYbvg9iMGHu_rct-lrqawdRy7FfR-s-JmpC5Y7ckNS-JO_SB6LC6xpBnhtVdQFskjXf"
           token=`cat token`
@@ -46,10 +50,12 @@ jobs:
           rm -rf token repo orga
 
       - name: create_file
+        if: always()
         run : |
           touch test
           touch trace.md
       - name: install_criterion
+        if: always()
         run : |
           sh mouliVD/install_criterion.sh > /dev/null
           make tests_run > /dev/null
@@ -62,6 +68,7 @@ jobs:
           echo "[/branch]" >> test
           make fclean
       - name: Compile_and_test
+        if: always()
         run: |
           touch test.md
           echo "color=16711680" >> $GITHUB_ENV
