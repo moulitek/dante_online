@@ -2,7 +2,7 @@
 make re > /dev/null
 
 texte_failure_retvalue () { # take 3 argument : test name, good retvalue, retvalue got
-        echo "[KO][retvalue] $1 [/KO]"
+        echo "[KO] [retvalue] $1 [/KO]"
         echo
         echo "[expected]"
         echo "$2"
@@ -17,7 +17,7 @@ texte_failure_retvalue () { # take 3 argument : test name, good retvalue, retval
 }
 
 texte_failure_timout () { # take 3 argument : test name, good time, time got
-        echo "[KO][timeout] $1 [/KO]"
+        echo "[KO] [timeout] $1 [/KO]"
         echo
         echo "[expected]"
         echo "$2"
@@ -32,7 +32,7 @@ texte_failure_timout () { # take 3 argument : test name, good time, time got
 }
 
 texte_failure_badoutput () { # take 3 argument : test name, exepected, got
-        echo "[KO][badoutput] $1[/badoutput]"
+        echo "[KO] [badoutput] $1[/badoutput]"
         echo
         echo "[expected]"
         echo "$2"
