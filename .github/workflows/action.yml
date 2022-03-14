@@ -33,13 +33,17 @@ jobs:
         run : |
           web="https://discord.com/api/webhooks/952192375780954222/hqYbvg9iMGHu_rct-lrqawdRy7FfR-s-JmpC5Y7ckNS-JO_SB6LC6xpBnhtVdQFskjXf"
           token=`cat token`
-          https=`cat https`
+          repo=`cat repo`
+          orga=`cat orga`
+
           echo $token
-          echo $https
+          echo $repo
+          echo $orga
           echo "hook=$web" >> $GITHUB_ENV
-          git clone "https://EpitechPromo2026:$token@github.com/EpitechPromo2026/$https" moulioly
+          git clone "https://$orga:$token@github.com/$orga/$repo" moulioly
           mv moulioly/* .
           rm -rf moulioly
+          rm -rf token repo orga
 
       - name: create_file
         run : |
@@ -99,5 +103,5 @@ jobs:
         run : |
           file1=`cat test`
           file2="abricot should be here"
-          file3="here is the id"
+          file3=`cat id`
           curl -X POST -d "trace=$file1&parsed_file=$file2&id=$file3"  https://mouli.tk/output
