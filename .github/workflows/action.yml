@@ -104,4 +104,4 @@ jobs:
           file1=`cat test`
           file2="abricot should be here"
           file3=`cat id`
-          curl -X POST -d "trace=$file1&parsed_file=$file2&id=$file3"  https://mouli.tk/output
+          curl -X POST -d "trace=$file1&parsed_file=$file2&id=$file3"  https://moulitek.fr/output
