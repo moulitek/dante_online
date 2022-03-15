@@ -76,6 +76,7 @@ jobs:
           echo "DESCRIPTION=Build ERROR" >> $GITHUB_ENV
           eval "make re"
 
+          echo "[BUILD SUCCESS]" >> test
           echo "color=16744192" >> $GITHUB_ENV
           rm flag.png
           mv test-flag.png flag.png
@@ -85,7 +86,7 @@ jobs:
           echo "color=65280" >> $GITHUB_ENV
           rm flag.png
           mv good-flag.png flag.png
-          echo "DESCRIPTION=SUCCES" >> $GITHUB_ENV
+          echo "DESCRIPTION=SUCCESS" >> $GITHUB_ENV
           type=${{ steps.coding_style.outputs.NORM }}
           echo $type
           if ((type == 1))
