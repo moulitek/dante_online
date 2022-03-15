@@ -13,13 +13,22 @@ jobs:
       - name: Hide file before norm
         run : |
           mv mouliVD .mouliVD
-      - name: Abricot Coding Style
-        uses: Just1truc/Abricot-Norminette@latest
-        id: coding_style
+          mv token .token
+          mv repo .repo
+          mv orga .orga
+          mv id .id
+      - name : use abricot
+        if: always()
+        run: |
+          python3 brico.py -json > brico.val
       - name: UnHide file before norm
         if: always()
         run : |
           mv .mouliVD mouliVD
+          mv .token token
+          mv .repo repo
+          mv .orga orga
+          mv .id id
       - name : use abricot
         if: always()
         run: |
