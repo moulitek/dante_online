@@ -9,7 +9,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: install thingz
         if: always()
-        run: sudo apt install -y clang-tidy clang-format inkscape
+        run: sudo apt install -y clang-tidy clang-format
       - name: Hide file before norm
         run : |
           mv mouliVD .mouliVD
@@ -33,18 +33,6 @@ jobs:
         if: always()
         run: |
           python3 brico.py -json > brico.val
-      - name : make flags
-        if: always()
-        run: |
-          curl "https://img.shields.io/badge/mouli-success-light--green?style=for-the-badge&logo=Cachet" -o good-flag.svg
-          curl "https://img.shields.io/badge/mouli-build%20error-ff0000?style=for-the-badge&logo=ZeroMQ" -o bad-flag.svg
-          curl "https://img.shields.io/badge/mouli-norm%20error-ffff00?style=for-the-badge&logo=Swagger" -o norm-flag.svg
-          curl "https://img.shields.io/badge/mouli-test%20error-ff7f00?style=for-the-badge&logo=Speedtest" -o test-flag.svg
-          inkscape good-flag.svg --export-png=good-flag.png
-          inkscape bad-flag.svg --export-png=bad-flag.png
-          inkscape norm-flag.svg --export-png=norm-flag.png
-          inkscape test-flag.svg --export-png=test-flag.png
-
       - name: extract_repository
         if: always()
         run : |
@@ -84,45 +72,14 @@ jobs:
         if: always()
         run: |
           touch test.md
-          echo "color=16711680" >> $GITHUB_ENV
-          mv bad-flag.png flag.png
-          echo "DESCRIPTION=Build ERROR" >> $GITHUB_ENV
           eval "make re"
-
           echo "[BUILD SUCCESS]" >> test
-          echo "color=16744192" >> $GITHUB_ENV
-          rm flag.png
-          mv test-flag.png flag.png
-          echo "DESCRIPTION=test-error" >> $GITHUB_ENV
-
           bash mouliVD/script >> test
-          echo "color=65280" >> $GITHUB_ENV
-          rm flag.png
-          mv good-flag.png flag.png
-          echo "DESCRIPTION=SUCCESS" >> $GITHUB_ENV
-          type=${{ steps.coding_style.outputs.NORM }}
-          echo $type
-          if ((type == 1))
-          then
-            echo "color=16776960" >> $GITHUB_ENV
-            rm flag.png
-            mv norm-flag.png flag.png
-            echo "DESCRIPTION=NORM ERROR" >> $GITHUB_ENV
-          fi
-      - name: discordwebhook
-        if: always()
-        uses: Ardorax/EpitechStyleDiscord@latest
-        with:
-          COLOR: ${{ env.color }}
-          DESCRIPTION: ${{ env.DESCRIPTION }}
-          SUMMARY: ${{ steps.coding_style.outputs.SUMMARY }}
-          FILES: trace.md;test;flag.png
-          USERNAME: Dante mouli
-          URL: ${{env.hook}}
       - name: send_file_on_web
         if: always()
         run : |
           file1=`cat test`
           file2=`cat brico.val`
           file3=`cat id`
+          echo $file2
           curl -X POST -d "trace=$file1&norm=$file2&id=$file3"  https://moulitek.fr/php/endpoints/output
