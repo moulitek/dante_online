@@ -1,8 +1,8 @@
 #!/bin/sh
 make re > /dev/null
 
-texte_failure_retvalue () { # take 3 argument : test name, good retvalue, retvalue got
-        echo "[KO] [retvalue] $1 [/KO]"
+texte_failure_retvalue () { # take 4 argument : test name, good retvalue, retvalue got, description
+        echo "[KO] [retvalue] $1 [desc] $4 [/desc] [/KO]"
         echo
         echo "[expected]"
         echo "$2"
@@ -16,8 +16,8 @@ texte_failure_retvalue () { # take 3 argument : test name, good retvalue, retval
         echo
 }
 
-texte_failure_timout () { # take 3 argument : test name, good time, time got
-        echo "[KO] [timeout] $1 [/KO]"
+texte_failure_timout () { # take 4 argument : test name, good time, time got, description
+        echo "[KO] [timeout] $1 [desc] $4 [/desc] [/KO]"
         echo
         echo "[expected]"
         echo "$2"
@@ -31,8 +31,8 @@ texte_failure_timout () { # take 3 argument : test name, good time, time got
         echo
 }
 
-texte_failure_badoutput () { # take 3 argument : test name, exepected, got
-        echo "[KO] [badoutput] $1[/badoutput]"
+texte_failure_badoutput () { # take 4 argument : test name, exepected, got, description
+        echo "[KO] [badoutput] $1 [desc] $4 [/desc] [/badoutput]"
         echo
         echo "[expected]"
         echo "$2"
@@ -104,13 +104,13 @@ test_expect_error () {
 }
 
 test_expect_error_res () {
-        ./solver/solver ${1} ${2}
+        ./solver/solver ${1} ${2} > /dev/null
         ret1=$(bash -c "echo $?")
         if [ $ret1 == 84 ]
         then
             texte_success "$1 $2 $3 $4"
         else
-            texte_failure_retvalue "$1 $2 $3 $4" 84 $ret1
+            texte_failure_retvalue "$1 $2 $3 $4" 84 $ret1 "$5"
             ret=84
         fi
 }
@@ -156,7 +156,7 @@ for entry in `ls $search_dir`; do
     mine="${search_dir}${entry}"
     test_expect_error_res $mine
 done
-test_expect_error_res "fake_file"
+test_expect_error_res "fake_file" "" "" "" "a file that dasn't exist is given has argument"
 test_expect_error_res $mine "too many file"
 
 
