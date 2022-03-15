@@ -2,7 +2,11 @@
 make re > /dev/null
 
 texte_failure_retvalue () { # take 4 argument : test name, good retvalue, retvalue got, description
-        echo "[KO] [retvalue] $1 [desc] $4 [/desc] [/KO]"
+        echo "[KO] [retvalue] $1 [/KO]"
+        echo
+        echo "[desc]"
+        echo "$4"
+        echo "[/desc]"
         echo
         echo "[expected]"
         echo "$2"
@@ -17,7 +21,11 @@ texte_failure_retvalue () { # take 4 argument : test name, good retvalue, retval
 }
 
 texte_failure_timout () { # take 4 argument : test name, good time, time got, description
-        echo "[KO] [timeout] $1 [desc] $4 [/desc] [/KO]"
+        echo "[KO] [timeout] $1 [/KO]"
+        echo
+        echo "[desc]"
+        echo "$4"
+        echo "[/desc]"
         echo
         echo "[expected]"
         echo "$2"
@@ -32,7 +40,11 @@ texte_failure_timout () { # take 4 argument : test name, good time, time got, de
 }
 
 texte_failure_badoutput () { # take 4 argument : test name, exepected, got, description
-        echo "[KO] [badoutput] $1 [desc] $4 [/desc] [/badoutput]"
+        echo "[KO] [badoutput] $1 [/badoutput]"
+        echo
+        echo "[desc]"
+        echo "$4"
+        echo "[/desc]"
         echo
         echo "[expected]"
         echo "$2"
@@ -67,6 +79,10 @@ texte_category_test () { # take 1 argument : category name
 
 texte_sequence_test () { # take 1 argument : sequence name
         echo "[##] $1 [/##]"
+        echo
+        echo "[desc]"
+        echo "$2"
+        echo "[/desc]"
         echo
 }
 ret=0
@@ -160,7 +176,7 @@ test_expect_error_res "fake_file" "" "" "" "a file that dasn't exist is given ha
 test_expect_error_res $mine "too many file"
 
 
-texte_sequence_test "LOOPING"
+texte_sequence_test "LOOPING" "we use your generator to generate a maze and your solver to solve it. we only check ret value"
 texte_category_test "medium one"
 
 i=0
