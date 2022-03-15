@@ -28,6 +28,26 @@ texte_failure_timout () { # take 4 argument : test name, good time, time got, de
         echo "[/desc]"
         echo
         echo "[expected]"
+        echo "$2s"
+        echo "[/expected]"
+        echo
+        echo "[got]"
+        echo "$3s"
+        echo "[/got]"
+        echo
+        echo "_____________________________________"
+        echo
+}
+
+
+texte_failure_segfault () { # take 4 argument : test name, good time, time got, description
+        echo "[KO] [segfault] $1 [/KO]"
+        echo
+        echo "[desc]"
+        echo "$4"
+        echo "[/desc]"
+        echo
+        echo "[expected]"
         echo "$2"
         echo "[/expected]"
         echo
@@ -40,7 +60,7 @@ texte_failure_timout () { # take 4 argument : test name, good time, time got, de
 }
 
 texte_failure_badoutput () { # take 4 argument : test name, exepected, got, description
-        echo "[KO] [badoutput] $1 [/badoutput]"
+        echo "[KO] [badoutput] $1 [/KO]"
         echo
         echo "[desc]"
         echo "$4"
@@ -90,11 +110,23 @@ ret=0
 test_expect_success () {
         DATE='/bin/date'
         BEFORE=$($DATE +'%s')
-        ./generator/generator ${1} ${2} > res
+        timeout 60s ./generator/generator ${1} ${2} > res
         ret1=$?
         AFTER=$($DATE +'%s')
         ELAPSED=$(($AFTER - $BEFORE))
 
+        if [ $ret1 == 139 ]
+        then
+            texte_failure_segfault "$1 $2" "OK" "segfault"
+            ret=84
+            return 0
+        fi
+        if [ $ret1 == 124 ]
+        then
+            texte_failure_timout "$1 $2" "less than 60" "more than 60"
+            ret=84
+            return 0
+        fi
         if [ $ret1 != 0 ]
         then
             texte_failure_retvalue "$1 $2" 0 $ret1
@@ -108,8 +140,21 @@ test_expect_success () {
 }
 
 test_expect_error () {
-        ./generator/generator ${1} ${2} ${3} ${4} > res
+        timeout 60s ./generator/generator ${1} ${2} ${3} ${4} > res
         ret1=$?
+
+        if [ $ret1 == 139 ]
+        then
+            texte_failure_segfault "$1 $2" "OK" "segfault"
+            ret=84
+            return 0
+        fi
+        if [ $ret1 == 124 ]
+        then
+            texte_failure_timout "$1 $2" "less than 60" "more than 60"
+            ret=84
+            return 0
+        fi
         if [ $ret1 == 84 ]
         then
             texte_success "$1 $2 $3 $4"
@@ -120,8 +165,21 @@ test_expect_error () {
 }
 
 test_expect_error_res () {
-        ./solver/solver ${1} ${2} > /dev/null
+        timeout 60s ./solver/solver ${1} ${2} > /dev/null
         ret1=$(bash -c "echo $?")
+
+        if [ $ret1 == 139 ]
+        then
+            texte_failure_segfault "$1 $2" "OK" "segfault"
+            ret=84
+            return 0
+        fi
+        if [ $ret1 == 124 ]
+        then
+            texte_failure_timout "$1 $2" "less than 60" "more than 60"
+            ret=84
+            return 0
+        fi
         if [ $ret1 == 84 ]
         then
             texte_success "$1 $2 $3 $4"
