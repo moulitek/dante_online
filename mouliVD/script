@@ -107,7 +107,7 @@ texte_sequence_test () { # take 1 argument : sequence name
 }
 
 texte_no_bin () { # take 1 argument : test name
-        echo "[KO] [bin] $1 no bin found [/KO]"
+        echo "[KO] [bin] $1 [/KO]"
         echo
 }
 
