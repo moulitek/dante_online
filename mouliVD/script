@@ -271,8 +271,8 @@ texte_category_test "medium one" "all test use perfect option for generator and 
 i=0
 while [ $i -lt 201 ]
 do
-    w=`echo $(($RANDOM%200+1))`
-    h=`echo $(($RANDOM%200+1))`
+    w=`echo $(($RANDOM%200+20))`
+    h=`echo $(($RANDOM%200+20))`
     flag=0
     ./generator/generator perfect $w $h > output.val
     ret1=$(bash -c "echo $?")
@@ -282,13 +282,13 @@ do
     ret3=$(bash -c "echo $?")
     if [ $ret3 != 0 ]
     then
-        texte_failure_badoutput "loop ($i) $1 $2" "perfect" "imperfect"
+        texte_failure_badoutput "loop ($i) $w $h" "perfect" "imperfect"
         flag=1
         ret=84
     fi
     if [ $ret2 != 0 ] || [ $ret1 != 0 ] || [ $flag == 0 ]
     then
-        texte_failure_retvalue "loop ($i) $1 $2" 0 $ret1
+        texte_failure_retvalue "loop ($i) $w $h" 0 $ret1
         ret=84
     fi
     if [ $ret2 == 0 ] && [ $ret1 == 0 ] && [ $flag == 0 ]
