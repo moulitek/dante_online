@@ -10,30 +10,6 @@ jobs:
       - name: install thingz
         if: always()
         run: sudo apt install -y clang-tidy clang-format
-      - name: hide
-        run : |
-          mv mouliVD .mouliVD
-          mv token .token
-          mv repo .repo
-          mv orga .orga
-          mv id .id
-      - name : use abricot
-        if: always()
-        run: |
-          ls -a
-          python3 brico.py -json > brico.val
-      - name: UnHide file before norm
-        if: always()
-        run : |
-          mv .mouliVD mouliVD
-          mv .token token
-          mv .repo repo
-          mv .orga orga
-          mv .id id
-      - name : use abricot
-        if: always()
-        run: |
-          python3 brico.py -json > brico.val
       - name: extract_repository
         if: always()
         run : |
@@ -50,7 +26,20 @@ jobs:
           mv moulioly/* .
           rm -rf moulioly
           rm -rf token repo orga
-
+      - name: hide
+        run : |
+          mv mouliVD .mouliVD
+          mv id .id
+      - name : use abricot
+        if: always()
+        run: |
+          ls -a
+          python3 brico.py -json > brico.val
+      - name: UnHide file before norm
+        if: always()
+        run : |
+          mv .mouliVD mouliVD
+          mv .id id
       - name: create_file
         if: always()
         run : |
