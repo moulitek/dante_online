@@ -286,7 +286,7 @@ do
         flag=1
         ret=84
     fi
-    if [ $ret2 != 0 ] || [ $ret1 != 0 ] || [ $flag == 0 ]
+    if [ $ret2 != 0 ] || [ $ret1 != 0 ] && [ $flag == 0 ]
     then
         texte_failure_retvalue "loop ($i) $w $h" 0 $ret1
         ret=84
