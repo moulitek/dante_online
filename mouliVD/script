@@ -1,9 +1,9 @@
 #!/bin/sh
 make re > /dev/null
-cd MazeComplexityEvalutation
+cd mouliVD/MazeComplexityEvalutation
 make re
-mv checkPerfect ..
-cd ..
+mv checkPerfect ../../
+cd ../../
 
 texte_failure_retvalue () { # take 4 argument : test name, good retvalue, retvalue got, description
         echo "[KO] [retvalue] $1 [/KO]"
