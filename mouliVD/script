@@ -274,7 +274,7 @@ do
     w=`echo $(($RANDOM%200+20))`
     h=`echo $(($RANDOM%200+20))`
     flag=0
-    ./generator/generator perfect $w $h > output.val
+    ./generator/generator $w $h perfect > output.val
     ret1=$(bash -c "echo $?")
     ./solver/solver output.val > res.val
     ret2=$(bash -c "echo $?")
