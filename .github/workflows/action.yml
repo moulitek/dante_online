@@ -17,6 +17,7 @@ jobs:
           mv repo .repo
           mv orga .orga
           mv id .id
+          ls -a
       - name : use abricot
         if: always()
         run: |
