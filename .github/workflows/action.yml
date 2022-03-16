@@ -17,10 +17,10 @@ jobs:
           mv repo .repo
           mv orga .orga
           mv id .id
-          ls -a
       - name : use abricot
         if: always()
         run: |
+          ls -a
           python3 brico.py -json > brico.val
       - name: UnHide file before norm
         if: always()
