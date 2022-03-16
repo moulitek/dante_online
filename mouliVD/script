@@ -105,6 +105,12 @@ texte_sequence_test () { # take 1 argument : sequence name
         echo "[/desc]"
         echo
 }
+
+texte_no_bin () { # take 1 argument : test name
+        echo "[KO] [bin] $1 no bin found [/KO]"
+        echo
+}
+
 ret=0
 
 test_expect_success () {
@@ -115,6 +121,12 @@ test_expect_success () {
         AFTER=$($DATE +'%s')
         ELAPSED=$(($AFTER - $BEFORE))
 
+        if [ $ret1 == 126 ]
+        then
+            texte_no_bin "$1 $2 $3 $4"
+            ret=84
+            return 0
+        fi
         if [ $ret1 == 139 ]
         then
             texte_failure_segfault "$1 $2" "OK" "segfault"
@@ -143,6 +155,12 @@ test_expect_error () {
         timeout 60s ./generator/generator ${1} ${2} ${3} ${4} > res
         ret1=$?
 
+        if [ $ret1 == 126 ]
+        then
+            texte_no_bin "$1 $2 $3 $4"
+            ret=84
+            return 0
+        fi
         if [ $ret1 == 139 ]
         then
             texte_failure_segfault "$1 $2" "OK" "segfault"
@@ -168,6 +186,12 @@ test_expect_error_res () {
         timeout 60s ./solver/solver ${1} ${2} > /dev/null
         ret1=$(bash -c "echo $?")
 
+        if [ $ret1 == 126 ]
+        then
+            texte_no_bin "$1 $2 $3 $4"
+            ret=84
+            return 0
+        fi
         if [ $ret1 == 139 ]
         then
             texte_failure_segfault "$1 $2" "OK" "segfault"
