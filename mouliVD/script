@@ -249,8 +249,6 @@ test_expect_error 2 "z"
 test_expect_error "2Ab" 0
 test_expect_error "A" 2
 test_expect_error 2
-test_expect_error 2 2 "perfec"
-test_expect_error 2 2 "poupiboup"
 test_expect_error 2 2 "perfect" "notperfect"
 
 
