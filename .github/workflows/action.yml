@@ -10,7 +10,7 @@ jobs:
       - name: install thingz
         if: always()
         run: sudo apt install -y clang-tidy clang-format
-      - name: Hide file before norm
+      - name: Hide_file
         run : |
           mv mouliVD .mouliVD
           mv token .token
@@ -19,6 +19,8 @@ jobs:
           mv id .id
       - name : use abricot
         if: always()
+        depends_on:
+          - Hide_file
         run: |
           python3 brico.py -json > brico.val
       - name: UnHide file before norm
@@ -72,6 +74,7 @@ jobs:
         if: always()
         run: |
           touch test.md
+          ls
           eval "make re"
           echo "[BUILD SUCCESS]" >> test
           bash mouliVD/script >> test
