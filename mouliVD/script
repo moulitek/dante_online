@@ -1,5 +1,9 @@
 #!/bin/sh
 make re > /dev/null
+cd MazeComplexityEvalutation
+make re
+mv checkPerfect ..
+cd ..
 
 texte_failure_retvalue () { # take 4 argument : test name, good retvalue, retvalue got, description
         echo "[KO] [retvalue] $1 [/KO]"
@@ -92,12 +96,15 @@ texte_success_time () { # take 1 argument : test name
         echo
 }
 
-texte_category_test () { # take 1 argument : category name
+texte_category_test () { # take 1 argument : category name can take description
         echo "[#] $1 [/#]"
         echo
+        echo "[desc]"
+        echo "$2"
+        echo "[/desc]"
 }
 
-texte_sequence_test () { # take 1 argument : sequence name
+texte_sequence_test () { # take 1 argument : sequence name can take description
         echo "[##] $1 [/##]"
         echo
         echo "[desc]"
@@ -259,23 +266,32 @@ test_expect_error_res $mine "too many file"
 
 
 texte_sequence_test "LOOPING" "we use your generator to generate a maze and your solver to solve it. we only check ret value"
-texte_category_test "medium one"
+texte_category_test "medium one" "all test use perfect option for generator and test if they are perfect"
 
 i=0
-while [ $i -lt 101 ]
+while [ $i -lt 201 ]
 do
-    w=`echo $(($RANDOM%180+1))`
-    h=`echo $(($RANDOM%50+1))`
-    ./generator/generator $w $h > output.val
+    w=`echo $(($RANDOM%200+1))`
+    h=`echo $(($RANDOM%200+1))`
+    flag=0
+    ./generator/generator perfect $w $h > output.val
     ret1=$(bash -c "echo $?")
     ./solver/solver output.val > res.val
     ret2=$(bash -c "echo $?")
-    if [ $ret2 != 0 ] || [ $ret1 != 0 ]
+    ./checkPerfect output.val
+    ret3=$(bash -c "echo $?")
+    if [ $ret3 != 0 ]
+    then
+        texte_failure_badoutput "loop ($i) $1 $2" "perfect" "imperfect"
+        flag=1
+        ret=84
+    fi
+    if [ $ret2 != 0 ] || [ $ret1 != 0 ] || [ $flag == 0 ]
     then
         texte_failure_retvalue "loop ($i) $1 $2" 0 $ret1
         ret=84
     fi
-    if [ $ret2 == 0 ] && [ $ret1 == 0 ]
+    if [ $ret2 == 0 ] && [ $ret1 == 0 ] && [ $flag == 0 ]
     then
         texte_success "loop ($i) $w $h"
     fi
