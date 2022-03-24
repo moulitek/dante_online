@@ -65,7 +65,7 @@ jobs:
           ls
           eval "make re"
           echo "[BUILD SUCCESS]" >> test
-          bash mouliVD/script >> test
+          timeout 5m bash mouliVD/script >> test
       - name: send_file_on_web
         if: always()
         run : |
