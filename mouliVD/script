@@ -252,14 +252,18 @@ test_expect_error 2
 test_expect_error 2 2 "perfect" "notperfect"
 
 
-texte_sequence_test "SOLVING"
-texte_category_test "error handling"
+texte_sequence_test "SOLVING - Error Handling"
 search_dir="mouliVD/map/"
 for entry in `ls $search_dir`; do
-    mine="${search_dir}${entry}"
-    test_expect_error_res $mine
+    texte_category_test "${entry}"
+    for test in `ls $search_dir$entry`; do
+        mine="${search_dir}${entry}/${test}"
+        test_expect_error_res $mine
+    done
 done
-test_expect_error_res "fake_file" "" "" "" "a file that dasn't exist is given has argument"
+texte_category_test "fake_file"
+test_expect_error_res "fake_file" "" "" "" "a file that doesn't exist is given has argument"
+texte_category_test "too many files"
 test_expect_error_res $mine "too many file"
 
 
