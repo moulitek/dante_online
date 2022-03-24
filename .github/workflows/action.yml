@@ -52,7 +52,7 @@ jobs:
           make tests_run > /dev/null
           pip install gcovr
           echo "[covr]" >> test
-          gcovr  >> test
+          gcovr --exclude=tests  >> test
           echo "[/covr]" >> test
           echo "[branch]" >> test
           gcovr --branches >> test
