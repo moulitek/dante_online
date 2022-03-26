@@ -28,9 +28,9 @@ jobs:
           rm -rf token repo orga
       - name: hide
         run : |
-          mv moulitek .moulitek
           mv mouliVD .mouliVD
           mv id .id
+          mv moulitek .moulitek
       - name : use abricot
         if: always()
         run: |
@@ -39,9 +39,9 @@ jobs:
       - name: UnHide file before norm
         if: always()
         run : |
-          mv .moulitek moulitek
           mv .mouliVD mouliVD
           mv .id id
+          mv .moulitek moulitek
       - name: create_file
         if: always()
         run : |
