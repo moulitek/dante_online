@@ -17,7 +17,6 @@ jobs:
           token=`cat token`
           repo=`cat repo`
           orga=`cat orga`
-
           echo $token
           echo $repo
           echo $orga
@@ -34,7 +33,6 @@ jobs:
       - name : use abricot
         if: always()
         run: |
-          ls -a
           python3 brico.py -json > brico.val
       - name: UnHide file before norm
         if: always()
@@ -45,14 +43,13 @@ jobs:
       - name: create_file
         if: always()
         run : |
-          touch test
           touch trace.md
       - name: install_criterion
         if: always()
         run : |
           sh mouliVD/install_criterion.sh > /dev/null
-          make tests_run > /dev/null
           pip install gcovr
+<<<<<<< HEAD
           echo "[covr]" >> test
           gcovr --exclude=tests  >> test
           echo "[/covr]" >> test
@@ -64,14 +61,16 @@ jobs:
         if: always()
         run: |
           mv moulitek mouliVD
+=======
+>>>>>>> 0fadf742efc90f6f79b19d66ba65dbedb9feb0a2
       - name: Compile_and_test
         if: always()
         run: |
+          export PYTHONPATH=$PYTHONPATH:.
+          mv mouliVD/moulitek .
           touch test.md
-          ls
-          eval "make re"
-          echo "[BUILD SUCCESS]" >> test
-          timeout 5m bash mouliVD/script >> test
+          touch trace.txt
+          python3 mouliVD/tester.py
       - name: send_file_on_web
         if: always()
         run : |
