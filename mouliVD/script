@@ -1,333 +1,243 @@
-#!/bin/sh
-make re > /dev/null
-cd mouliVD/MazeComplexityEvalutation
-make re
-mv checkPerfect ../../
-cd ../../
+#!/bin/python3
+import os
+from time import sleep
+from moulitek.moulitek import *
 
-texte_failure_retvalue () { # take 4 argument : test name, good retvalue, retvalue got, description
-        echo "[KO] [retvalue] $1 [/KO]"
-        echo
-        echo "[desc]"
-        echo "$4"
-        echo "[/desc]"
-        echo
-        echo "[expected]"
-        echo "$2"
-        echo "[/expected]"
-        echo
-        echo "[got]"
-        echo "$3"
-        echo "[/got]"
-        echo
-        echo "_____________________________________"
-        echo
+sequences = {
+    "bad_char": ("Bad characters", "Mazes with wrong characters."),
+    "bad_lines": ("Wrong lines length", "Mazes with wrong line length."),
+    "empty": ("Empty maze", "Empty maze file."),
+    "no_solution": ("No solution", "Mazes without solution."),
+    "return_line": ("Line break", "Mazes with line break at the end."),
 }
 
-texte_failure_timout () { # take 4 argument : test name, good time, time got, description
-        echo "[KO] [timeout] $1 [/KO]"
-        echo
-        echo "[desc]"
-        echo "$4"
-        echo "[/desc]"
-        echo
-        echo "[expected]"
-        echo "$2s"
-        echo "[/expected]"
-        echo
-        echo "[got]"
-        echo "$3s"
-        echo "[/got]"
-        echo
-        echo "_____________________________________"
-        echo
+tests = {
+    "bad_carac1": ("Bad character 1", "'#' character at every end of lines."),
+    "bad_carac2": ("Bad character 2", "'p' character at the bottom of the maze."),
+    "bad_carac3": ("Bad character 3", "'D' and 'µ' everywhere."),
+    "bad_nbline1": ("Short line at the end", "Last line is shorter."),
+    "bad_nbline2": ("Long line at the beginning", "Second line is longer."),
+    "bad_nbline3": ("Short line at the beginning", "Second line is shorter."),
+    "empty_maze": ("Empty maze", "Empty maze."),
+    "no_escape": ("No escape", "The end is surrounded by walls."),
+    "only_X": ("Only X", "The maze is only composed of a single 'X'."),
+    "start_with_X": ("Start with X", "The maze starts with a 'X'."),
+    "end_with_X": ("End with X", "The maze ends with a 'X'."),
+    "end_with_return_line": ("End with line break", "The maze ends with a line break."),
 }
 
-
-texte_failure_segfault () { # take 4 argument : test name, good time, time got, description
-        echo "[KO] [segfault] $1 [/KO]"
-        echo
-        echo "[desc]"
-        echo "$4"
-        echo "[/desc]"
-        echo
-        echo "[expected]"
-        echo "$2"
-        echo "[/expected]"
-        echo
-        echo "[got]"
-        echo "$3"
-        echo "[/got]"
-        echo
-        echo "_____________________________________"
-        echo
+solver_sequences = {
+    "small_perfect": ("Small perfect maze", "Perfect maze of size 10x10."),
+    "small_imperfect": ("Small imperfect maze", "Imperfect maze of size 10x10."),
+    "medium_perfect": ("Medium perfect maze", "Perfect maze of size 100x100."),
+    "medium_imperfect": ("Medium imperfect maze", "Imperfect maze of size 100x100.")
 }
 
-texte_failure_badoutput () { # take 4 argument : test name, exepected, got, description
-        echo "[KO] [badoutput] $1 [/KO]"
-        echo
-        echo "[desc]"
-        echo "$4"
-        echo "[/desc]"
-        echo
-        echo "[expected]"
-        echo "$2"
-        echo "[/expected]"
-        echo
-        echo "[got]"
-        echo "$3"
-        echo "[/got]"
-        echo
-        echo "_____________________________________"
-        echo
-}
-
-texte_success () { # take 1 argument : test name
-        echo "[OK] $1 [/OK]"
-        echo
-        echo "_____________________________________"
-        echo
-}
-
-texte_success_time () { # take 1 argument : test name
-        echo "[OK] $1 on $2s [/OK]"
-        echo
-        echo "_____________________________________"
-        echo
-}
-
-texte_category_test () { # take 1 argument : category name can take description
-        echo "[#] $1 [/#]"
-        echo
-        echo "[desc]"
-        echo "$2"
-        echo "[/desc]"
-}
-
-texte_sequence_test () { # take 1 argument : sequence name can take description
-        echo "[##] $1 [/##]"
-        echo
-        echo "[desc]"
-        echo "$2"
-        echo "[/desc]"
-        echo
-}
-
-texte_no_bin () { # take 1 argument : test name
-        echo "[KO] [bin] $1 [/KO]"
-        echo
-}
-
-ret=0
-
-test_expect_success () {
-        DATE='/bin/date'
-        BEFORE=$($DATE +'%s')
-        timeout 60s ./generator/generator ${1} ${2} > res
-        ret1=$?
-        AFTER=$($DATE +'%s')
-        ELAPSED=$(($AFTER - $BEFORE))
-
-        if [ $ret1 == 126 ]
-        then
-            texte_no_bin "$1 $2 $3 $4"
-            ret=84
-            return 0
-        fi
-        if [ $ret1 == 139 ]
-        then
-            texte_failure_segfault "$1 $2" "OK" "segfault"
-            ret=84
-            return 0
-        fi
-        if [ $ret1 == 124 ]
-        then
-            texte_failure_timout "$1 $2" "less than 60" "more than 60"
-            ret=84
-            return 0
-        fi
-        if [ $ret1 != 0 ]
-        then
-            texte_failure_retvalue "$1 $2" 0 $ret1
-            ret=84
-        fi
-        if [ $ret1 == 0 ]
-        then
-            texte_success_time "$1 $2" $ELAPSED
-        fi
-        rm res
-}
-
-test_expect_error () {
-        timeout 60s ./generator/generator ${1} ${2} ${3} ${4} > res
-        ret1=$?
-
-        if [ $ret1 == 126 ]
-        then
-            texte_no_bin "$1 $2 $3 $4"
-            ret=84
-            return 0
-        fi
-        if [ $ret1 == 139 ]
-        then
-            texte_failure_segfault "$1 $2" "OK" "segfault"
-            ret=84
-            return 0
-        fi
-        if [ $ret1 == 124 ]
-        then
-            texte_failure_timout "$1 $2" "less than 60" "more than 60"
-            ret=84
-            return 0
-        fi
-        if [ $ret1 == 84 ]
-        then
-            texte_success "$1 $2 $3 $4"
-        else
-            texte_failure_retvalue "$1 $2 $3 $4" 84 $ret1
-            ret=84
-        fi
-}
-
-test_expect_error_res () {
-        timeout 60s ./solver/solver ${1} ${2} > /dev/null
-        ret1=$(bash -c "echo $?")
-
-        if [ $ret1 == 126 ]
-        then
-            texte_no_bin "$1 $2 $3 $4"
-            ret=84
-            return 0
-        fi
-        if [ $ret1 == 139 ]
-        then
-            texte_failure_segfault "$1 $2" "OK" "segfault"
-            ret=84
-            return 0
-        fi
-        if [ $ret1 == 124 ]
-        then
-            texte_failure_timout "$1 $2" "less than 60" "more than 60"
-            ret=84
-            return 0
-        fi
-        if [ $ret1 == 84 ]
-        then
-            texte_success "$1 $2 $3 $4"
-        else
-            texte_failure_retvalue "$1 $2 $3 $4" 84 $ret1 "$5"
-            ret=84
-        fi
-}
-
-texte_sequence_test "GENERATION"
-texte_category_test "time"
-test_expect_success 2 2
-test_expect_success 1 40
-test_expect_success 40 1
-test_expect_success 1 1
-test_expect_success 10 10
-test_expect_success 100 100
-test_expect_success 1000 1000
-test_expect_success 10000 10000
-test_expect_success 20000 20000
-test_expect_success 30000 30000
-test_expect_success 40000 40000
-test_expect_success 50000 50000
-
-texte_category_test "error handling"
-
-test_expect_error 0 2
-test_expect_error 2 0
-test_expect_error 2 -0
-test_expect_error -2 0
-test_expect_error 2 -2
-test_expect_error "a" 2
-test_expect_error 2 "a"
-test_expect_error "z" 2
-test_expect_error 2 "z"
-test_expect_error "2Ab" 0
-test_expect_error "A" 2
-test_expect_error 2
-test_expect_error 2 2 "perfect" "notperfect"
+generation_sequences = [
+    ("Small Mazes", "Mazes with a small size."),
+    ("Medium Mazes", "Mazes with a medium size."),
+    ("Big Mazes", "Mazes with a big size.")
+]
 
 
-texte_sequence_test "SOLVING - Error Handling"
-search_dir="mouliVD/map/"
-for entry in `ls $search_dir`; do
-    texte_category_test "${entry}"
-    for test in `ls $search_dir$entry`; do
-        mine="${search_dir}${entry}/${test}"
-        test_expect_error_res $mine
-    done
-done
-texte_category_test "fake_file"
-test_expect_error_res "fake_file" "" "" "" "a file that doesn't exist is given has argument"
-texte_category_test "too many files"
-test_expect_error_res $mine "too many file"
+def manage_exit(sequence, test, exitstat, expected, timeout):
+    if exitstat == expected:
+        sequence.set_status(test, True)
+        return True
+    elif exitstat == 124:
+        sequence.set_status(test, False, TIMEOUT,
+                            expected="Exit status %d" % expected, got="Timeout after %ds" % timeout)
+        return False
+    elif exitstat == 139:
+        sequence.set_status(test, False, SEGFAULT,
+                            expected="Exit status %d" % expected, got="Segmentation fault")
+        return False
+    else:
+        sequence.set_status(test, False,
+                            RETVALUE, expected=str(expected), got=str(exitstat))
+        return False
 
 
-texte_sequence_test "LOOPING" "we use your generator to generate a maze and your solver to solve it. we only check ret value"
-texte_category_test "medium one" "all test use perfect option for generator and test if they are perfect"
+generation_tests = [
+    [
+        ("1*1", 1, 1),
+        ("2*2", 2, 1),
+        ("10*10", 10, 2)
+    ],
+    [
+        ("100*100", 100, 3),
+        ("1000*1000", 1000, 5),
+        ("5000*5000", 5000, 7)
+    ],
+    [
+        ("10000*10000", 10000, 20),
+        ("30000*30000", 30000, 30),
+        ("50000*50000", 50000, 40)
+    ]
+]
+error_handling_generation_sequences = [
+    ("Bad dimensions", "Executing generator with invalid dimensions."),
+    ("Bad arguments", "Executing generator with non-numerics arguments."),
+    ("Bad argument count", "Executing generator with too few/much arguments."),
+]
+error_handling_generation_tests = [
+    [
+        ["0", "2"],
+        ["2", "0"],
+        ["0", "0"],
+        ["2", "-0"],
+        ["-2", "0"],
+        ["2", "-2"],
+        ["-2", "-2"]
+    ],
+    [
+        ["a", "2"],
+        ["2", "a"],
+        ["z", "2"],
+        ["2", "z"],
+        ["2Ab", "0"],
+        ["A", "2"],
+        ["a", "a"],
 
-i=0
-while [ $i -lt 201 ]
-do
-    w=`echo $(($RANDOM%200+20))`
-    h=`echo $(($RANDOM%200+20))`
-    flag=0
-    ./generator/generator $w $h perfect > output.val
-    ret1=$(bash -c "echo $?")
-    ./solver/solver output.val > res.val
-    ret2=$(bash -c "echo $?")
-    ./checkPerfect output.val
-    ret3=$(bash -c "echo $?")
-    if [ $ret3 != 0 ]
-    then
-        texte_failure_badoutput "loop ($i) $w $h" "perfect" "imperfect"
-        flag=1
-        ret=84
-    fi
-    if [ $ret2 != 0 ] || [ $ret1 != 0 ] && [ $flag == 0 ]
-    then
-        texte_failure_retvalue "loop ($i) $w $h" 0 $ret1
-        ret=84
-    fi
-    if [ $ret2 == 0 ] && [ $ret1 == 0 ] && [ $flag == 0 ]
-    then
-        texte_success "loop ($i) $w $h"
-    fi
+    ],
+    [
+        ["2"],
+        ["2", "2", "perfect", "imperfect"]
+    ]
+]
 
-	i=`expr $i + 1`
-	rm output.val
-    rm res.val
-done
+init_moulitek()
+os.system("cd mouliVD/perfection && timeout 10s make re > /dev/null && mv checkPerfect ../../ && cd ../../")
 
+generation_eh = Category("Generation - Error Handling",
+                         "Generation error handling tests.")
+for i, seq in enumerate(error_handling_generation_sequences):
+    sequence = generation_eh.add_sequence(seq[0], seq[1])
+    for j, test in enumerate(error_handling_generation_tests[i]):
+        sequence.add_test("%s #%d" % (seq[0], j + 1),
+                          "Command : generator/generator %s" % " ".join(test))
+        exitstat = call_system("generator/generator %s" %
+                               " ".join(test), timeout=5)
+        manage_exit(sequence, "%s #%d" % (seq[0], j + 1), exitstat, 84, 5)
 
-texte_category_test "little one"
+generation_time = Category(
+    "Generation - Time", "Time to generate a maze of different sizes.")
+for i, seq in enumerate(generation_sequences):
+    sequence = generation_time.add_sequence(seq[0], seq[1])
+    for j, test in enumerate(generation_tests[i]):
+        sequence.add_test("%s in %ds" % (test[0], test[2]))
+        exitstat = call_system(
+            "generator/generator %d %d" % (test[1], test[1]), timeout=test[2])
+        manage_exit(sequence, "%s in %ds" %
+                    (test[0], test[2]), exitstat, 0, test[2])
 
-i=0
-while [ $i -lt 101 ]
-do
-    w=`echo $(($RANDOM%10+1))`
-    h=`echo $(($RANDOM%10+1))`
-    ./generator/generator $w $h > output.val
-    ret1=$(bash -c "echo $?")
-    ./solver/solver output.val > res.val
-    ret2=$(bash -c "echo $?")
-    if [ $ret2 != 0 ] || [ $ret1 != 0 ]
-    then
-        texte_failure_retvalue "loop ($i) $w $h" 0 $ret1
-        ret=84
-    fi
-    if [ $ret2 == 0 ] && [ $ret1 == 0 ]
-    then
-        texte_success "loop ($i) $w $h"
-    fi
-	i=`expr $i + 1`
-	rm output.val
-    rm res.val
-done
+generation_perfection = Category(
+    "Generation - Perfection", "Checking if your mazes are perfects.")
+for perfection in ["", "perfect"]:
+    for x in range(2):
+        for y in range(2):
+            sequence = generation_perfection.add_sequence("%s - (%s width - %s height)" % ("Perfect" if perfection == "perfect" else "Imperfect", "odd" if x %
+                                                          2 else "even", "odd" if y % 2 else "even"), ("Checking if your programm produce %s maze." % ("a perfect" if perfection == "perfect" else "an imperfect")))
+            for i in range(5):
+                test_name = "%s #%d" % (
+                    "Perfect" if perfection == "perfect" else "Imperfect", i + 1)
+                sequence.add_test(test_name, "Maze of %d*%d (%s)" % (
+                    50 + x, 50 + y, "perfect" if perfection == "perfect" else "imperfect"))
+                exitstat = call_system(
+                    "generator/generator %d %d %s > maze" % (50 + x, 50 + y, perfection), timeout=10)
+                if manage_exit(sequence, test_name, exitstat, 0, 10):
+                    exitstat = call_system(
+                        "./checkPerfect maze", timeout=10)
+                    if (exitstat != 0 and perfection == "perfect") or (exitstat != 1 and perfection == ""):
+                        if exitstat in range(2):
+                            sequence.set_status(test_name, False, BADOUTPUT, expected="Perfect maze" if perfection ==
+                                                "perfect" else "Imperfect maze", got="Imperfect maze" if perfection == "perfect" else "Perfect maze")
+                        else:
+                            sequence.set_status(
+                                test_name, False, BADOUTPUT, expected="Perfect maze" if perfection == "perfect" else "Imperfect maze", got="Unknown error")
 
-make fclean > /dev/null
-exit $ret
+generation_complexity = Category(
+    "Generation - Complexity", "Checking if your mazes are complex enough.")
+sequence = generation_complexity.add_sequence(
+    "Perfect Complexity", "Checking if your perfect mazes are complex enough.")
+for i in range(10):
+    test_name = "Perfect #%d" % (i + 1)
+    sequence.add_test(test_name, "Maze of 50*50 (perfect)")
+    exitstat = call_system(
+        "generator/generator 50 50 perfect > maze", timeout=10)
+    if manage_exit(sequence, test_name, exitstat, 0, 10):
+        exitstat = call_system(
+            "python3 mouliVD/evaluate_complexity.py maze", timeout=10)
+        if exitstat == 0:
+            sequence.set_status(test_name, True)
+        elif exitstat == 2:
+            sequence.set_status(test_name, False, BADOUTPUT,
+                                expected="Complex maze", got="Not enough straight aways")
+        elif exitstat == 3:
+            sequence.set_status(test_name, False, BADOUTPUT,
+                                expected="Complex maze", got="Not enough junctions")
+        elif exitstat == 4:
+            sequence.set_status(test_name, False, BADOUTPUT,
+                                expected="Complex maze", got="Not enough dead ends")
+        else:
+            sequence.set_status(test_name, False, BADOUTPUT,
+                                expected="Complex maze", got="Unknown error")
+
+sequence = generation_complexity.add_sequence(
+    "Imperfect Complexity", "Checking if your imperfect mazes are complex enough.")
+for i in range(10):
+    test_name = "Imperfect #%d" % (i + 1)
+    sequence.add_test(test_name, "Maze of 50*50 (imperfect)")
+    exitstat = call_system("generator/generator 50 50 > maze", timeout=10)
+    if manage_exit(sequence, test_name, exitstat, 0, 10):
+        exitstat = call_system(
+            "python3 mouliVD/evaluate_complexity.py maze", timeout=10)
+        if exitstat == 0:
+            sequence.set_status(test_name, True)
+        elif exitstat == 2:
+            sequence.set_status(test_name, False, BADOUTPUT,
+                                expected="Complex maze", got="Not enough straight aways")
+        elif exitstat == 3:
+            sequence.set_status(test_name, False, BADOUTPUT,
+                                expected="Complex maze", got="Not enough junctions")
+        elif exitstat == 4:
+            sequence.set_status(test_name, False, BADOUTPUT,
+                                expected="Complex maze", got="Not enough dead ends")
+        else:
+            sequence.set_status(test_name, False, BADOUTPUT,
+                                expected="Complex maze", got="Unknown error")
+
+solver_eh = Category("Solver - Error Handling",
+                     "Cheking the error handling of the solver part.")
+for directory in os.listdir("mouliVD/map"):
+    sequence = solver_eh.add_sequence(
+        sequences[directory][0], sequences[directory][1])
+    for file in os.listdir("mouliVD/map/" + directory):
+        sequence.add_test(tests[file][0], tests[file][1])
+        exitstat = call_system(
+            "solver/solver " + "mouliVD/map/" + directory + "/" + file, timeout=10)
+        manage_exit(sequence, tests[file][0], exitstat, 84, 10)
+
+for directory in os.listdir("mouliVD/map"):
+    sequence = solver_eh.add_sequence(
+        sequences[directory][0], sequences[directory][1])
+    for file in os.listdir("mouliVD/map/" + directory):
+        sequence.add_test(tests[file][0], tests[file][1])
+        exitstat = call_system(
+            "solver/solver " + "mouliVD/map/" + directory + "/" + file, timeout=10)
+        manage_exit(sequence, tests[file][0], exitstat, 84, 10)
+
+solver = Category("Solver", "Checking if your solver is working.")
+for directory in solver_sequences:
+    seq = solver_sequences[directory]
+    sequence = solver.add_sequence(seq[0], seq[1])
+    for i, file in enumerate(os.listdir("mouliVD/solver/" + directory)):
+        sequence.add_test("%s #%d" % (seq[0], i + 1))
+        exitstat = call_system(
+            "solver/solver " + "mouliVD/solver/" + directory + "/" + file + " > solved", timeout=10)
+        if manage_exit(sequence, "%s #%d" % (seq[0], i + 1), exitstat, 0, 10):
+            exitstat = call_system("python3 mouliVD/is_solved.py %s solved" % (
+                "mouliVD/solver/" + directory + "/" + file), timeout=10)
+            manage_exit(sequence, "%s #%d" % (seq[0], i + 1), exitstat, 0, 10)
+
+gen_trace()
