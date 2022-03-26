@@ -28,6 +28,7 @@ jobs:
           rm -rf token repo orga
       - name: hide
         run : |
+          mv moulitek .moulitek
           mv mouliVD .mouliVD
           mv id .id
       - name : use abricot
@@ -38,6 +39,7 @@ jobs:
       - name: UnHide file before norm
         if: always()
         run : |
+          mv .moulitek moulitek
           mv .mouliVD mouliVD
           mv .id id
       - name: create_file
@@ -61,7 +63,7 @@ jobs:
       - name: update_lib
         if: always()
         run: |
-          git clone git@github.com:vavarier/python_lib.git mouliVD/moulitek
+          mv moulitek mouliVD
       - name: Compile_and_test
         if: always()
         run: |
