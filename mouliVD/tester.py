@@ -218,15 +218,6 @@ for directory in os.listdir("mouliVD/map"):
             "solver/solver " + "mouliVD/map/" + directory + "/" + file, timeout=10)
         manage_exit(sequence, tests[file][0], exitstat, 84, 10)
 
-for directory in os.listdir("mouliVD/map"):
-    sequence = solver_eh.add_sequence(
-        sequences[directory][0], sequences[directory][1])
-    for file in os.listdir("mouliVD/map/" + directory):
-        sequence.add_test(tests[file][0], tests[file][1])
-        exitstat = call_system(
-            "solver/solver " + "mouliVD/map/" + directory + "/" + file, timeout=10)
-        manage_exit(sequence, tests[file][0], exitstat, 84, 10)
-
 solver = Category("Solver", "Checking if your solver is working.")
 for directory in solver_sequences:
     seq = solver_sequences[directory]
