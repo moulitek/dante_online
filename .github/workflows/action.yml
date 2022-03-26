@@ -49,20 +49,6 @@ jobs:
         run : |
           sh mouliVD/install_criterion.sh > /dev/null
           pip install gcovr
-<<<<<<< HEAD
-          echo "[covr]" >> test
-          gcovr --exclude=tests  >> test
-          echo "[/covr]" >> test
-          echo "[branch]" >> test
-          gcovr --branches >> test
-          echo "[/branch]" >> test
-          make fclean
-      - name: update_lib
-        if: always()
-        run: |
-          mv moulitek mouliVD
-=======
->>>>>>> 0fadf742efc90f6f79b19d66ba65dbedb9feb0a2
       - name: Compile_and_test
         if: always()
         run: |
