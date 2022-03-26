@@ -58,6 +58,10 @@ jobs:
           gcovr --branches >> test
           echo "[/branch]" >> test
           make fclean
+      - name: update_lib
+        if: always()
+        run: |
+          git clone git@github.com:vavarier/python_lib.git mouliVD/moulitek
       - name: Compile_and_test
         if: always()
         run: |
