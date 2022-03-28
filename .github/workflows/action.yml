@@ -64,7 +64,7 @@ jobs:
           file3=`cat id`
           echo $file2
           if [ -s $file1 ]; then
-            curl -X POST -d "trace=$file1&norm=$file2&id=$file3"  https://moulitek.fr/php/endpoints/output
-          else
             curl -X POST -d "id=$file3" https://moulitek.fr/php/endpoints/crashed
+          else
+            curl -X POST -d "trace=$file1&norm=$file2&id=$file3"  https://moulitek.fr/php/endpoints/output
           fi
